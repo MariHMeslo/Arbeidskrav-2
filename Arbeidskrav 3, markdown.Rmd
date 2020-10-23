@@ -1,0 +1,107 @@
+---
+title: "Arbeidskrav 2 - Statistisk inferens"
+output: html_document
+author: Mari Hårstad Meslo og Lars Nymoen
+---
+
+#### Introduksjon
+
+Dataen vi har brukt kommer fra studien til Haun et al. (2019), som samlet inn data fra 30 menn for å se på effekten av styrketrening med høy motstand. Intervensjonsperioden var på 6 uker, hvor de som hadde høyest respons på treningen ble plassert i gruppen HIGH, og de som responderte lavest på treningen ble plassert i gruppen LOW. 
+
+Vi valgte å se på variabelen som målte mengden testosteron i blodet (ng/dL) fra T1 (pre-test) til T3 (etter 6 uker trening). Testosteron-variabelen er interessant å se på fordi trening kan virke å ha effekt på testosteron-nivået i blodet. 
+
+
+#### Hypotese
+
+*Hypotese null:* Det vil ikke være noen endring i testosteron-nivået i gruppene før og etter treningsintervensjonen. 
+
+*Hypotese 1:* Testosteron-nivået i blodet (ng/dL) øker mer i HIGH-gruppen enn i LOW-gruppen etter treningsintervensjonen.
+
+#### Deskriptiv statistikk
+Vi har gjort deskriptiv statistikk som viser endringen i testosteron-nivået for hver forsøksperson som ett punkt i HIGH- og LOW-gruppen, fra T1 til T3 (se figur 1).
+
+
+```{r Laste inn nødvendige pakker, message=FALSE, warning=FALSE, include=FALSE}
+
+library(tidyverse)
+```
+
+```{r Laste inn data, message=FALSE, warning=FALSE, include=FALSE}
+
+hypertrophy1 <- read_csv("./data/hypertrophy1.csv")
+
+```
+
+```{r Velge de variablene som skal brukes, message=FALSE, warning=FALSE, include=FALSE}
+
+var_interest <- c("CLUSTER", "T3T1__TESTOSTERONE_ngdl")
+
+```
+
+
+```{r Velge bort NA, message=FALSE, warning=FALSE, include=FALSE}
+
+hyp1 <- hypertrophy1 %>%
+  select(all_of(var_interest)) %>%
+  filter(!is.na(CLUSTER),
+         !is.na(T3T1__TESTOSTERONE_ngdl))
+
+
+```
+
+```{r Kjøre t.test mellom T3 og T1, message=FALSE, warning=FALSE, include=FALSE}
+
+ttest <- t.test(T3T1__TESTOSTERONE_ngdl ~ CLUSTER, paired = FALSE, data = hyp1)
+
+df <- round(ttest$parameter, 2)
+statistic <- round(ttest$statistic, 2)
+estimate <- ttest$estimate
+cil <- round(ttest$conf.int[1], 2)
+ciu <- round(ttest$conf.int[2], 2)
+pval <- round(ttest$p.value, 3)
+
+```
+
+
+```{r Finne differanse mellom HIGH- og LOW-gruppa, message=FALSE, warning=FALSE, include=FALSE}
+
+high1 <- hyp1[hyp1$CLUSTER == "HIGH",]$T3T1__TESTOSTERONE_ngdl
+
+low1 <- hyp1[hyp1$CLUSTER == "LOW",]$T3T1__TESTOSTERONE_ngdl
+
+mean_high <- mean(high1)
+mean_low <- mean(low1)
+
+mean <- mean(mean_high - mean_low)
+
+```
+
+
+
+```{r Box-plot, warning=FALSE, message=FALSE, echo=FALSE}
+
+hyp1 %>%
+  ggplot(aes(CLUSTER, T3T1__TESTOSTERONE_ngdl)) + geom_point() + labs(x = "Gruppe", y = "Endring i testosteron (ng/dL) fra T1 til T3", title = "Figur 1", caption = "Endring i testosteron (ng/dL) fra T1 til T3 hos HIGH- og LOW-gruppa")
+
+```
+
+
+#### Resultat
+
+
+Endringen i testosteron fra T1 til T3 var `r round(estimate[1], 1)` (ng/dL) for HIGH-gruppen, og `r round(estimate[2], 1)` (ng/dL) for LOW-gruppen. 
+
+P-verdien for endringen = `r round(pval, 3)` 
+
+
+#### Konklusjon
+
+Vi konkluderer med at HIGH-gruppen ikke skiller seg fra LOW-gruppen i endring av testosteron-nivå (ng/dL)fra T1 til T3 (gjennomsnittlig forskjell `r round(mean, 2)`, 95% konfidensintervall [`r cil` , `r ciu`]; t(`r df`) = `r statistic`, p = `r pval`)
+
+Dette resultatet viser at null-hypotesen er sann, altså at det ikke er noe signifikant forskjell i testosteron-nivået mellom gruppene før og etter en seks ukers treningsperiode med intensiv styrketrening for menn. 
+
+
+
+#### Referanser:
+
+Haun, C. T., Vann, C. G., Mobley, C. B., Osburn, S. C., Mumford, P. W., Roberson, P. A., … Roberts, M. D. (2019). *Pre-training Skeletal Muscle Fiber Size and Predominant Fiber Type Best Predict Hypertrophic Responses to 6 Weeks of Resistance Training in Previously Trained Young Men*. Frontiers in Physiology, 10. doi:10.3389/fphys.2019.00297
