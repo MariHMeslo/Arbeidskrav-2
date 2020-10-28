@@ -2,20 +2,23 @@
 title: "Arbeidskrav 2 - Statistisk inferens"
 output: html_document
 author: Mari Hårstad Meslo og Lars Nymoen
+bibliography: references.bib
+editor_options: 
+  chunk_output_type: console
 ---
 
 #### Introduksjon
-
-Dataen vi har brukt kommer fra studien til Haun et al. (2019), som samlet inn data fra 30 menn for å se på effekten av styrketrening med høy motstand. Intervensjonsperioden var på 6 uker, hvor de som hadde høyest respons på treningen ble plassert i gruppen HIGH, og de som responderte lavest på treningen ble plassert i gruppen LOW. 
+<!-- Added references in text...  --> 
+Dataen vi har brukt kommer fra studien til Haun et al. [@Haun2019], som samlet inn data fra 30 menn for å se på effekten av styrketrening med høy motstand. Intervensjonsperioden var på 6 uker, hvor de som hadde høyest respons på treningen ble plassert i gruppen HIGH, og de som responderte lavest på treningen ble plassert i gruppen LOW. 
 
 Vi valgte å se på variabelen som målte mengden testosteron i blodet (ng/dL) fra T1 (pre-test) til T3 (etter 6 uker trening). Testosteron-variabelen er interessant å se på fordi trening kan virke å ha effekt på testosteron-nivået i blodet. 
-
+<!-- What is the purpose of the study? To examine the effect of training on testo or see if testo explains testo training response? -->
 
 #### Hypotese
 
-*Hypotese null:* Det vil ikke være noen endring i testosteron-nivået i gruppene før og etter treningsintervensjonen. 
+*Hypotese null:* Det vil ikke være noen endring i testosteron-nivået i gruppene før og etter treningsintervensjonen. <!-- Difference between groups? -->
 
-*Hypotese 1:* Testosteron-nivået i blodet (ng/dL) øker mer i HIGH-gruppen enn i LOW-gruppen etter treningsintervensjonen.
+*Hypotese 1:* Testosteron-nivået i blodet (ng/dL) øker mer i HIGH-gruppen enn i LOW-gruppen etter treningsintervensjonen. <!-- This is not an alternative of the null above.? -->
 
 #### Deskriptiv statistikk
 Vi har gjort deskriptiv statistikk som viser endringen i testosteron-nivået for hver forsøksperson som ett punkt i HIGH- og LOW-gruppen, fra T1 til T3 (se figur 1).
@@ -27,8 +30,13 @@ library(tidyverse)
 ```
 
 ```{r Laste inn data, message=FALSE, warning=FALSE, include=FALSE}
+# Data is missing from the repository, need to download first..
 
-hypertrophy1 <- read_csv("./data/hypertrophy1.csv")
+# need to doanload data set first
+download.file(url = "https://ndownloader.figstatic.com/files/14702420", 
+              destfile = "./data/hypertrophy.csv")  # Laster ned datafilen.
+
+hypertrophy1 <- read_csv("./data/hypertrophy.csv")
 
 ```
 
@@ -72,7 +80,11 @@ low1 <- hyp1[hyp1$CLUSTER == "LOW",]$T3T1__TESTOSTERONE_ngdl
 mean_high <- mean(high1)
 mean_low <- mean(low1)
 
-mean <- mean(mean_high - mean_low)
+mean <- mean_high - mean_low
+
+# this would be the same as 
+# ttest$estimate[1]-ttest$estimate[2]
+
 
 ```
 
@@ -98,10 +110,10 @@ P-verdien for endringen = `r round(pval, 3)`
 
 Vi konkluderer med at HIGH-gruppen ikke skiller seg fra LOW-gruppen i endring av testosteron-nivå (ng/dL)fra T1 til T3 (gjennomsnittlig forskjell `r round(mean, 2)`, 95% konfidensintervall [`r cil` , `r ciu`]; t(`r df`) = `r statistic`, p = `r pval`)
 
-Dette resultatet viser at null-hypotesen er sann, altså at det ikke er noe signifikant forskjell i testosteron-nivået mellom gruppene før og etter en seks ukers treningsperiode med intensiv styrketrening for menn. 
+Dette resultatet viser at null-hypotesen ikke kan forkastes, altså at det ikke er noe signifikant forskjell i testosteron-nivået mellom gruppene før og etter en seks ukers treningsperiode med intensiv styrketrening for menn. 
 
 
 
-#### Referanser:
+#### Referanser
 
-Haun, C. T., Vann, C. G., Mobley, C. B., Osburn, S. C., Mumford, P. W., Roberson, P. A., … Roberts, M. D. (2019). *Pre-training Skeletal Muscle Fiber Size and Predominant Fiber Type Best Predict Hypertrophic Responses to 6 Weeks of Resistance Training in Previously Trained Young Men*. Frontiers in Physiology, 10. doi:10.3389/fphys.2019.00297
+
